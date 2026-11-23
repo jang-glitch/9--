@@ -24,6 +24,10 @@ h1 {
   font-size: 24px;
 }
 
+#game {
+  max-width: 960px;
+}
+
 #game canvas {
   display: block;
   width: 100%;
