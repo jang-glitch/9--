@@ -165,6 +165,12 @@ class BubbleTeaScene extends Phaser.Scene {
       this.orders.length < this.stageOrders.length
       && this.stageOrders[this.orders.length].appearAtSeconds <= elapsedSeconds
     ) {
+      this.releaseNextOrder();
+    }
+  }
+
+  releaseNextOrder() {
+    if (this.orders.length < this.stageOrders.length) {
       this.orders.push(this.stageOrders[this.orders.length]);
     }
   }
@@ -181,6 +187,7 @@ class BubbleTeaScene extends Phaser.Scene {
       this.finishLevel(this.sales >= this.level.targetSales, '모든 주문을 전달했습니다!');
       return;
     }
+    if (!this.hasActiveOrder()) this.releaseNextOrder();
     this.feedback = this.hasActiveOrder()
       ? `${order.customerName} 주문 완료! 다음 손님 주문을 확인하세요.`
       : `${order.customerName} 주문 완료! 다음 손님을 기다리는 중입니다.`;
