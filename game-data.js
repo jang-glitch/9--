@@ -10,7 +10,7 @@ export const RECIPES = {
   },
   milkTea: {
     name: '밀크티',
-    steps: ['홍차', '우유', '타피오카 펄', '얼음 보통', '당도 100%'],
+    steps: ['홍차', '우유', '얼음 보통', '당도 100%'],
   },
   mangoTea: {
     name: '망고티',

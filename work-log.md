@@ -32,3 +32,4 @@
 2026-11-25 / 빠른 주문 처리 시 손님 조기 등장 / game.js, prompt.txt, work-log.md / 현재 등장한 주문을 모두 처리하면 다음 예약 손님을 즉시 대기열에 추가하도록 조정했다.
 2026-11-25 / 레벨 3 및 직접 시작 주소 구현 / config.js, game-data.js, game.js, tasks.md, prompt.txt, work-log.md / 망고티 5단계 레시피와 레벨 3 데이터 흐름을 반영하고 URL 쿼리로 스테이지를 직접 시작하게 했다.
 2026-11-25 / 스테이지 주문 구성 조정 / stageData.js, spec (1).md, tasks.md, prompt.txt, work-log.md / 사용자 의도에 따라 스테이지 2를 두 메뉴·두 손님으로 조정하고 스테이지 3의 세 메뉴 순환 구성을 명시했다.
+2026-11-25 / 남은 MVP 기능 구현 / config.js, game-data.js, progress.js, game.js, tasks.md, prompt.txt, work-log.md / 개별 손님 관리·대기열·만족도·보상·상점·누적 저장·3레벨 완료 흐름을 구현했다.
