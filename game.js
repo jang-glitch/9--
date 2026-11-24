@@ -11,11 +11,21 @@ const COLORS = {
   good: 0x49764d,
 };
 
+function getStartStageIndex() {
+  const stageId = Number(
+    new URLSearchParams(window.location.search).get(GAME_CONFIG.startup.stageQueryParameter),
+  );
+  const stageIndex = STAGE_DATA.findIndex((stage) => stage.id === stageId);
+  return stageIndex === GAME_CONFIG.startup.invalidStageIndex
+    ? GAME_CONFIG.player.initialStageIndex
+    : stageIndex;
+}
+
 class BubbleTeaScene extends Phaser.Scene {
   create() {
     this.coins = GAME_CONFIG.player.initialCoins;
     this.xp = GAME_CONFIG.player.initialExperience;
-    this.startLevel(GAME_CONFIG.player.initialStageIndex);
+    this.startLevel(getStartStageIndex());
   }
 
   startLevel(levelIndex) {

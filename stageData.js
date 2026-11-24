@@ -10,10 +10,10 @@ export const STAGE_DATA = [
   {
     id: 2,
     timeLimitSeconds: 75,
-    targetSales: 30,
-    customerCount: 3,
-    recipeKeys: ['brownSugar', 'milkTea', 'milkTea'],
-    customerAppearAtSeconds: [0, 15, 30],
+    targetSales: 20,
+    customerCount: 2,
+    recipeKeys: ['brownSugar', 'milkTea'],
+    customerAppearAtSeconds: [0, 15],
   },
   {
     id: 3,

@@ -12,6 +12,10 @@ export const GAME_CONFIG = {
     initialExperience: 0,
     initialSales: 0,
   },
+  startup: {
+    stageQueryParameter: 'stage',
+    invalidStageIndex: -1,
+  },
   customer: {
     initialSatisfaction: 3,
     failureSatisfaction: 0,
