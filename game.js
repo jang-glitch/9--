@@ -75,7 +75,7 @@ class BubbleTeaScene extends Phaser.Scene {
     this.add.circle(174, 216, 48, 0xf0c7a5);
     this.add.circle(157, 208, 6, COLORS.ink);
     this.add.circle(191, 208, 6, COLORS.ink);
-    this.add.arc(174, 228, 20, 0, 180, false, COLORS.ink).setLineWidth(3);
+    this.add.arc(174, 228, 20, 0, 180, false).setStrokeStyle(3, COLORS.ink);
     this.add.rectangle(174, 267, 102, 70, COLORS.accent).setOrigin(0.5, 0);
     this.add.text(174, 354, order.customerName, this.textStyle(22, '#2d2427', true)).setOrigin(0.5);
     this.add.text(174, 385, '주문을 기다리고 있어요', this.textStyle(15, '#6b5a5e')).setOrigin(0.5);
@@ -196,7 +196,7 @@ class BubbleTeaScene extends Phaser.Scene {
 }
 
 new Phaser.Game({
-  type: Phaser.AUTO,
+  type: Phaser.CANVAS,
   parent: 'game',
   width: 960,
   height: 600,
