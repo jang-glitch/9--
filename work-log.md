@@ -27,3 +27,5 @@
 2026-11-25 / 경험치 보상 규칙 확정 / spec (1).md, prompt.txt, work-log.md / 사용자 승인에 따라 주문 성공당 경험치 5를 지급하고 MVP 승진 진행도 표시용으로 누적하도록 명세화했다.
 2026-11-25 / 게임 피드백 표시 방식 확정 / spec (1).md, prompt.txt, work-log.md / 사용자 승인에 따라 HUD와 손님 카드에 표시할 진행·성장·대기 정보를 명세화했다.
 2026-11-25 / MVP 작업 목록 재작성 / tasks.md, work-log.md / 최신 명세와 현재 구현을 대조해 완료 기반 기능과 검증 가능한 후속 작업을 분리했다.
+2026-11-25 / 레벨 1 데이터 명세 반영 / stageData.js, config.js, game-data.js, game.js, tasks.md, prompt.txt, work-log.md / 첫 미완료 작업을 완료하고 스테이지·공통 규칙 수치를 데이터 파일로 분리했다.
+2026-11-25 / 레벨 2 순차 손님 등장 구현 / game.js, tasks.md, prompt.txt, work-log.md / 레벨 데이터의 등장 시점에 따라 손님을 추가하고 주문 공백 상태를 처리했다.

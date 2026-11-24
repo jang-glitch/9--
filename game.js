@@ -1,4 +1,6 @@
-import { ACTIONS, LEVELS, RECIPES } from './game-data.js';
+import { GAME_CONFIG } from './config.js';
+import { ACTIONS, RECIPES } from './game-data.js';
+import { STAGE_DATA } from './stageData.js';
 
 const COLORS = {
   ink: 0x2d2427,
@@ -11,34 +13,37 @@ const COLORS = {
 
 class BubbleTeaScene extends Phaser.Scene {
   create() {
-    this.coins = 0;
-    this.xp = 0;
-    this.startLevel(0);
+    this.coins = GAME_CONFIG.player.initialCoins;
+    this.xp = GAME_CONFIG.player.initialExperience;
+    this.startLevel(GAME_CONFIG.player.initialStageIndex);
   }
 
   startLevel(levelIndex) {
     if (this.clock) this.clock.remove(false);
     this.levelIndex = levelIndex;
-    this.level = LEVELS[levelIndex];
-    this.orders = this.level.recipes.map((recipeKey, index) => ({
+    this.level = STAGE_DATA[levelIndex];
+    this.stageOrders = this.level.recipeKeys.map((recipeKey, index) => ({
       ...RECIPES[recipeKey],
+      price: GAME_CONFIG.rewards.orderPrice,
       customerName: `손님 ${index + 1}`,
+      appearAtSeconds: this.level.customerAppearAtSeconds[index],
     }));
+    this.orders = [];
     this.currentOrderIndex = 0;
-    this.sales = 0;
-    this.satisfaction = 3;
-    this.remainingTime = this.level.time;
+    this.sales = GAME_CONFIG.player.initialSales;
+    this.satisfaction = GAME_CONFIG.customer.initialSatisfaction;
+    this.remainingTime = this.level.timeLimitSeconds;
     this.selectedSteps = [];
-    this.feedback = levelIndex === 1
-      ? '레벨 2: 밀크티와 망고티가 해금되었습니다.'
-      : '주문 순서대로 재료를 선택하세요.';
+    this.feedback = '주문 순서대로 재료를 선택하세요.';
     this.finished = false;
+    this.addArrivedOrders();
     this.render();
     this.clock = this.time.addEvent({
-      delay: 1000,
+      delay: GAME_CONFIG.clock.tickMilliseconds,
       loop: true,
       callback: () => {
         this.remainingTime -= 1;
+        this.addArrivedOrders();
         if (this.remainingTime <= 0) {
           this.remainingTime = 0;
           this.finishLevel(false, '시간이 초과되었습니다.');
@@ -63,14 +68,18 @@ class BubbleTeaScene extends Phaser.Scene {
   drawHud() {
     this.add.text(28, 22, `레벨 ${this.levelIndex + 1}`, this.textStyle(24, '#2d2427', true));
     this.add.text(28, 58, `남은 시간  ${this.remainingTime}초`, this.textStyle(20, '#2d2427'));
-    this.add.text(330, 22, `매출  ${this.sales} / ${this.level.target} 코인`, this.textStyle(24, '#2d2427', true));
+    this.add.text(330, 22, `매출  ${this.sales} / ${this.level.targetSales} 코인`, this.textStyle(24, '#2d2427', true));
     this.add.text(330, 58, `코인 ${this.coins}   경험치 ${this.xp}`, this.textStyle(20, '#2d2427'));
-    this.add.text(744, 22, `만족도  ${'♥'.repeat(this.satisfaction)}${'♡'.repeat(3 - this.satisfaction)}`,
+    this.add.text(744, 22, `만족도  ${'♥'.repeat(this.satisfaction)}${'♡'.repeat(GAME_CONFIG.customer.initialSatisfaction - this.satisfaction)}`,
       this.textStyle(24, '#8b3a52', true));
   }
 
   drawCustomer() {
     const order = this.orders[this.currentOrderIndex];
+    if (!order) {
+      this.add.text(174, 290, '다음 손님을\n기다리는 중입니다.', this.textStyle(20, '#6b5a5e', true)).setOrigin(0.5);
+      return;
+    }
     this.add.rectangle(174, 280, 246, 225, 0xfffbf6, 0.9).setStrokeStyle(2, COLORS.ink);
     this.add.circle(174, 216, 48, 0xf0c7a5);
     this.add.circle(157, 208, 6, COLORS.ink);
@@ -83,6 +92,11 @@ class BubbleTeaScene extends Phaser.Scene {
 
   drawOrderCard() {
     const order = this.orders[this.currentOrderIndex];
+    if (!order) {
+      this.add.rectangle(480, 266, 324, 230, COLORS.card).setStrokeStyle(2, COLORS.ink);
+      this.add.text(480, 250, '다음 주문 대기 중', this.textStyle(24, '#6b5a5e', true)).setOrigin(0.5);
+      return;
+    }
     this.add.rectangle(480, 266, 324, 230, COLORS.card).setStrokeStyle(2, COLORS.ink);
     this.add.text(332, 162, '현재 주문', this.textStyle(22, '#2d2427', true));
     this.add.text(332, 200, order.name, this.textStyle(28, '#8b3a52', true));
@@ -111,7 +125,7 @@ class BubbleTeaScene extends Phaser.Scene {
     ACTIONS.forEach((action, index) => {
       const x = 70 + (index % 4) * 145;
       const y = 530 + Math.floor(index / 4) * 42;
-      this.button(x, y, 130, 34, action, () => this.chooseStep(action), this.finished || this.isDrinkReady());
+      this.button(x, y, 130, 34, action, () => this.chooseStep(action), this.finished || !this.hasActiveOrder() || this.isDrinkReady());
     });
 
     this.button(755, 530, 160, 54, this.isDrinkReady() ? '손님에게 전달' : '제조 중',
@@ -119,13 +133,13 @@ class BubbleTeaScene extends Phaser.Scene {
   }
 
   chooseStep(action) {
-    if (this.finished || this.isDrinkReady()) return;
+    if (this.finished || !this.hasActiveOrder() || this.isDrinkReady()) return;
     const order = this.orders[this.currentOrderIndex];
     if (action !== order.steps[this.selectedSteps.length]) {
       this.selectedSteps = [];
       this.satisfaction -= 1;
       this.feedback = '순서가 틀렸습니다. 처음부터 다시 제조하세요. (만족도 -1)';
-      if (this.satisfaction === 0) {
+      if (this.satisfaction === GAME_CONFIG.customer.failureSatisfaction) {
         this.finishLevel(false, '손님 만족도가 모두 소진되었습니다.');
         return;
       }
@@ -141,19 +155,35 @@ class BubbleTeaScene extends Phaser.Scene {
     return order && this.selectedSteps.length === order.steps.length;
   }
 
+  hasActiveOrder() {
+    return this.currentOrderIndex < this.orders.length;
+  }
+
+  addArrivedOrders() {
+    const elapsedSeconds = this.level.timeLimitSeconds - this.remainingTime;
+    while (
+      this.orders.length < this.stageOrders.length
+      && this.stageOrders[this.orders.length].appearAtSeconds <= elapsedSeconds
+    ) {
+      this.orders.push(this.stageOrders[this.orders.length]);
+    }
+  }
+
   serveOrder() {
     if (!this.isDrinkReady() || this.finished) return;
     const order = this.orders[this.currentOrderIndex];
     this.sales += order.price;
     this.coins += order.price;
-    this.xp += 5;
+    this.xp += GAME_CONFIG.rewards.experiencePerOrder;
     this.currentOrderIndex += 1;
     this.selectedSteps = [];
-    if (this.currentOrderIndex === this.orders.length) {
-      this.finishLevel(this.sales >= this.level.target, '모든 주문을 전달했습니다!');
+    if (this.currentOrderIndex === this.stageOrders.length) {
+      this.finishLevel(this.sales >= this.level.targetSales, '모든 주문을 전달했습니다!');
       return;
     }
-    this.feedback = `${order.customerName} 주문 완료! 다음 손님 주문을 확인하세요.`;
+    this.feedback = this.hasActiveOrder()
+      ? `${order.customerName} 주문 완료! 다음 손님 주문을 확인하세요.`
+      : `${order.customerName} 주문 완료! 다음 손님을 기다리는 중입니다.`;
     this.render();
   }
 
@@ -164,16 +194,16 @@ class BubbleTeaScene extends Phaser.Scene {
     this.render();
     this.add.rectangle(480, 300, 960, 600, 0x2d2427, 0.72);
     this.add.text(480, 218, success ? '레벨 성공!' : '레벨 실패', this.textStyle(38, '#ffffff', true)).setOrigin(0.5);
-    const detail = success && this.levelIndex === LEVELS.length - 1 ? '모든 프로토타입 레벨을 완료했습니다.' : message;
+    const detail = success && this.levelIndex === STAGE_DATA.length - 1 ? '모든 프로토타입 레벨을 완료했습니다.' : message;
     this.add.text(480, 276, detail, this.textStyle(20, '#ffffff')).setOrigin(0.5);
     this.add.text(480, 312, `최종 매출 ${this.sales} 코인 · 누적 경험치 ${this.xp}`, this.textStyle(18, '#ffffff')).setOrigin(0.5);
-    const label = success && this.levelIndex < LEVELS.length - 1 ? '다음 레벨' : '처음부터 다시 하기';
+    const label = success && this.levelIndex < STAGE_DATA.length - 1 ? '다음 레벨' : '처음부터 다시 하기';
     this.button(480, 380, 220, 54, label, () => {
-      if (success && this.levelIndex < LEVELS.length - 1) this.startLevel(this.levelIndex + 1);
+      if (success && this.levelIndex < STAGE_DATA.length - 1) this.startLevel(this.levelIndex + 1);
       else {
-        this.coins = 0;
-        this.xp = 0;
-        this.startLevel(0);
+        this.coins = GAME_CONFIG.player.initialCoins;
+        this.xp = GAME_CONFIG.player.initialExperience;
+        this.startLevel(GAME_CONFIG.player.initialStageIndex);
       }
     }, false, COLORS.accent);
   }
@@ -198,8 +228,8 @@ class BubbleTeaScene extends Phaser.Scene {
 new Phaser.Game({
   type: Phaser.CANVAS,
   parent: 'game',
-  width: 960,
-  height: 600,
+  width: GAME_CONFIG.canvas.width,
+  height: GAME_CONFIG.canvas.height,
   backgroundColor: '#f7f1eb',
   scene: BubbleTeaScene,
 });
