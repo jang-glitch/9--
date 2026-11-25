@@ -291,4 +291,4 @@ class BubbleTeaScene extends Phaser.Scene {
   textStyle(size, color, bold = false) { return { fontFamily: 'Arial', fontSize: `${size}px`, color, fontStyle: bold ? 'bold' : 'normal' }; }
 }
 
-new Phaser.Game({ type: Phaser.CANVAS, parent: 'game', width: GAME_CONFIG.canvas.width, height: GAME_CONFIG.canvas.height, backgroundColor: '#f7f1eb', scene: BubbleTeaScene });
+export const game = new Phaser.Game({ type: Phaser.CANVAS, parent: 'game', width: GAME_CONFIG.canvas.width, height: GAME_CONFIG.canvas.height, backgroundColor: '#f7f1eb', scene: BubbleTeaScene });

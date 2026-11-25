@@ -33,3 +33,6 @@
 2026-11-25 / 레벨 3 및 직접 시작 주소 구현 / config.js, game-data.js, game.js, tasks.md, prompt.txt, work-log.md / 망고티 5단계 레시피와 레벨 3 데이터 흐름을 반영하고 URL 쿼리로 스테이지를 직접 시작하게 했다.
 2026-11-25 / 스테이지 주문 구성 조정 / stageData.js, spec (1).md, tasks.md, prompt.txt, work-log.md / 사용자 의도에 따라 스테이지 2를 두 메뉴·두 손님으로 조정하고 스테이지 3의 세 메뉴 순환 구성을 명시했다.
 2026-11-25 / 남은 MVP 기능 구현 / config.js, game-data.js, progress.js, game.js, tasks.md, prompt.txt, work-log.md / 개별 손님 관리·대기열·만족도·보상·상점·누적 저장·3레벨 완료 흐름을 구현했다.
+2026-11-25 17:06 / 출시 항목 추가 / spec (1).md, prompt.txt, work-log.md / 사용자 요청에 따라 기존 내용은 그대로 두고 명세 끝에 배포·SDK·광고·결제 방침을 추가했다.
+2026-11-25 17:20 / 원스토어 SDK 연동 변경안 작성 / prompt.txt, work-log.md / 공식 문서 확인 후 코드 수정 전에 변경 계획만 제시했다.
+2026-11-25 17:35 / 원스토어 웹게임 SDK 기본 연동 / onestore.js, index.html, game.js, work-log.md / 승인된 변경안대로 SDK 초기화 후 Phaser와 게임을 불러오고, 원스토어 앱에서만 진행률·시작 알림과 pause/resume을 처리했다.
